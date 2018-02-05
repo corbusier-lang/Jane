@@ -8,22 +8,25 @@ class JaneTests: XCTestCase {
         
         let rect = CGArea(rect: .init(x: 0, y: 0, width: 100, height: 100))
         let area = CGArea(size: .init(width: 50, height: 50))
+        let area2 = CGArea(size: .init(width: 100, height: 100))
         
         var context = CRBContext()
         context.instances = [
             crbname("point"): CRBPointInstance.init(point: CRBPoint.init(x: 5, y: 10)),
             crbname("rect"): rect,
             crbname("area"): area,
+            crbname("area2"): area2,
         ]
         
         try jane(in: context) { j in
-            j.jlet("pointx").equals(i("point").at("x"))
-            j.jlet("pointy").equals(i("point").at("y"))
-            j.jlet("somepoint").equals(i("pointx"))
             j.place(o("area").at("left").at("top").distance(10).from(i("rect").at("right").at("top")))
+            j.jlet("bottom").equals(i("area").at("bottom"))
+            j.jlet("guide").equals(o("area2").at("top").distance(50).from(i("bottom")))
+            j.place(i("guide"))
         }
         
         dump(area)
+        dump(area2)
         
     }
 
