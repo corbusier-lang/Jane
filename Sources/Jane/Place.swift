@@ -85,8 +85,9 @@ public final class JanePlacement : JaneExpression {
     
     public func expression() -> CRBExpression {
         let objAnch = CRBPlaceExpression.ObjectAnchor.init(objectName: anchor.anchor.name, anchorKeyPath: anchor.anchor.anchorKeyPath)
+        let distance = CRBExpression.instance(CRBNumberInstance(anchor.distance))
         let placement = CRBPlaceExpression(toPlace: objAnch,
-                                           distance: anchor.distance,
+                                           distance: distance,
                                            anchorPointToPlaceFrom: expr.expression())
         return .placement(placement)
     }

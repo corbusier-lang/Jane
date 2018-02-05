@@ -16,6 +16,7 @@ class JaneTests: XCTestCase {
             crbname("rect"): rect,
             crbname("area"): area,
             crbname("area2"): area2,
+            crbname("add"): CRBFunctionInstance.add()
         ]
         
         try jane(in: context) { j in
@@ -23,6 +24,7 @@ class JaneTests: XCTestCase {
             j.jlet("bottom").equals(i("area").at("bottom"))
             j.jlet("guide").equals(o("area2").at("top").distance(50).from(i("bottom")))
             j.place(i("guide"))
+            j.jlet("fifteen").equals(i("add").call(i(5.0), i(10.0)))
         }
         
         dump(area)

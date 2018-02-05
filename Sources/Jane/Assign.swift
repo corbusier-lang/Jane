@@ -13,6 +13,31 @@ public protocol JaneExpression {
     
 }
 
+extension JaneExpression {
+    
+    public func call(_ args: JaneExpression...) -> JaneExpression {
+        return JaneFunctionCall(functionCall: self, arguments: args)
+    }
+    
+}
+
+public final class JaneFunctionCall : JaneExpression {
+    
+    let functionCall: JaneExpression
+    let arguments: [JaneExpression]
+    
+    init(functionCall: JaneExpression, arguments: [JaneExpression]) {
+        self.functionCall = functionCall
+        self.arguments = arguments
+    }
+    
+    public func expression() -> CRBExpression {
+        return CRBExpression.call(functionCall.expression(),
+                                  arguments: arguments.map({ $0.expression() }))
+    }
+    
+}
+
 extension JaneContext {
     
     public func jlet(_ name: String) -> JaneLet {
@@ -38,11 +63,30 @@ public final class JaneLet : JaneCommand {
     
 }
 
-public func i(_ name: String) -> JaneInstance {
-    return JaneInstance(name: crbname(name))
+public func i(_ name: String) -> JaneInstanceRef {
+    return JaneInstanceRef(name: crbname(name))
+}
+
+public func i(_ value: Double) -> JaneInstance {
+    let num = CRBNumberInstance(CRBFloat(value))
+    return JaneInstance(instance: num)
 }
 
 public final class JaneInstance : JaneExpression {
+    
+    let instance: CRBInstance
+    
+    public init(instance: CRBInstance) {
+        self.instance = instance
+    }
+    
+    public func expression() -> CRBExpression {
+        return CRBExpression.instance(instance)
+    }
+    
+}
+
+public final class JaneInstanceRef : JaneExpression {
     
     let name: CRBInstanceName
     let keyPath: CRBKeyPath
@@ -52,14 +96,14 @@ public final class JaneInstance : JaneExpression {
         self.keyPath = keyPath
     }
     
-    public func at(_ key: String) -> JaneInstance {
+    public func at(_ key: String) -> JaneInstanceRef {
         var newKeyPath = keyPath
         newKeyPath.append(crbname(key))
-        return JaneInstance(name: self.name, keyPath: newKeyPath)
+        return JaneInstanceRef(name: self.name, keyPath: newKeyPath)
     }
     
     public func expression() -> CRBExpression {
-        return CRBExpression.subinstance(self.name, self.keyPath)
+        return CRBExpression.reference(self.name, self.keyPath)
     }
     
 }
